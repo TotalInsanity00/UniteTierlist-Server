@@ -1,18 +1,19 @@
-    import express from "express";
-    import cors from "cors";
-    import puppeteer from "puppeteer";
+import express from "express";
+import cors from "cors";
+import puppeteer from "puppeteer";
 
-    const app = express();
-    app.use(cors());
-    app.use(express.json({ limit: "10mb" }));
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: "10mb" }));
 
-    // Launch Puppeteer once when the server starts
-    const browserPromise = puppeteer.launch({
+// Launch Puppeteer once when the server starts
+puppeteer.launch({
+    executablePath: puppeteer.executablePath(),
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    });
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+});
 
-    app.post("/generate-image", async (req, res) => {
+app.post("/generate-image", async (req, res) => {
     const { url } = req.body;
 
     if (!url) {
@@ -38,8 +39,8 @@
         console.error("Error generating image:", err);
         res.status(500).send("Failed to generate image");
     }
-    });
+});
 
-    app.listen(3000, () =>
+app.listen(3000, () =>
     console.log("✅ Puppeteer server running at http://localhost:3000")
-    );
+);
